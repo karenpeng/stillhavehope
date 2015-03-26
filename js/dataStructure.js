@@ -7,6 +7,7 @@ module.exports = data;
 // };
 
 function data(){
+  this.id = null;
   this.param = null;
   this.returnValue = null;
   this.level = null;

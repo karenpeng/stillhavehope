@@ -6,9 +6,9 @@ function fibonacci(num){
   return fibonacci(num -1) + fibonacci(num -2);
 }
 
-var call = 'fibonacci(5);'
-
 var fib = fibonacci.toString();
+
+var call = 'fibonacci(3);'
 
 var result = parse(fib.concat(call));
 

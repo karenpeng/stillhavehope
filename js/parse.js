@@ -10,7 +10,11 @@ module.exports = function (src) {
   var _obj = [];
 
   var out = falafel(src, function (node) {
+//console.log(node)
     if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
+      // console.log('1 ')
+      // console.log(node)
+
       node.body.update('{' + '_enter(' + id + ',' + level + ',arguments);' + node.body.body
         .map(function (x) {
           return x.source()
@@ -18,16 +22,23 @@ module.exports = function (src) {
         .join(';\n') + '_exit(' + id + ');' + '}'
       );
       nodes[id] = node;
-      id++;
+      id ++;
       level ++;
-    } else if (node.type === 'ReturnStatement') {
+    }
+
+
+    else if (node.type === 'ReturnStatement') {
+      // console.log('2 ')
+      // console.log(node)
       node.argument.update(
         '_exit(' + id + ',' + level + ',' + node.argument.source() + ')'
       );
       nodes[id] = node;
       id++;
-      level ++;
+      //level ++;
     }
+
+
   }).toString();
 
   console.log(out);
@@ -45,6 +56,8 @@ module.exports = function (src) {
     //   'return': value
     // });
     var data = new Data();
+    // obj[id]
+    data.id = id;
     data.param = value;
     data.level = level;
     _obj.push(data);
@@ -63,8 +76,10 @@ module.exports = function (src) {
     //   'func': str
     // });
     //_obj.push(str);
+
     var data = new Data();
-    //data.param = ndes[id].id.name;
+    data.param = nodes[id].id.name;
+    data.id = id;
     data.level = level;
     data.param = str;
     _obj.push(data);
