@@ -1,94 +1,40 @@
 var falafel = require('falafel');
 var inspect = require('object-inspect');
-var Data = require('./dataStructure.js');
 
 module.exports = function (src) {
-
   var id = 0;
   var nodes = {};
-  var level = 0;
   var _obj = [];
 
-  var out = falafel(src, function (node) {
-//console.log(node)
-    if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
-      // console.log('1 ')
-      // console.log(node)
-
-      node.body.update('{' + '_enter(' + id + ',' + level + ',arguments);' + node.body.body
-        .map(function (x) {
-          return x.source()
-        })
-        .join(';\n') + '_exit(' + id + ');' + '}'
-      );
-      nodes[id] = node;
-      id ++;
-      level ++;
+  var body = falafel(src, function (node) {
+    switch (node.type) {
+    case 'FunctionExpression':
+    case 'FunctionDeclaration':
+      return updateDeclaration(node);
+    case 'ReturnStatement':
+      return updateReturn(node);
     }
+  });
+  return Function(['_enter', '_exit'], body);
+}
 
+function updateDeclaration(node) {
+  var insideBody = node.body.body.map(function (x) {
+    return x.source();
+  }).join(';\n');
 
-    else if (node.type === 'ReturnStatement') {
-      // console.log('2 ')
-      // console.log(node)
-      node.argument.update(
-        '_exit(' + id + ',' + level + ',' + node.argument.source() + ')'
-      );
-      nodes[id] = node;
-      id++;
-      //level ++;
-    }
+  var enter = '{\n' +
+    '_enter("' + node.id.name +'", arguments);\n';
+  var exit = '\n_exit();\n}';
+  node.body.update(enter + insideBody + exit);
+}
 
-
-  }).toString();
-
-  console.log(out);
-  //console.log(nodes);
-
-  var stack = [];
-  Function(['_exit', '_enter'], out)(exit, enter);
-
-  function exit(id, level, value) {
-    stack.pop();
-    var indent = Array(stack.length + 1).join(' ');
-    //console.log(indent + value);
-
-    // _obj.push({
-    //   'return': value
-    // });
-    var data = new Data();
-    // obj[id]
-    data.id = id;
-    data.param = value;
-    data.level = level;
-    _obj.push(data);
-
-    return value;
+function updateReturn(node) {
+  if (!node.argument) {
+    node.update('return _exit()');
+    return;
   }
-
-  function enter(id, level, args) {
-    var indent = Array(stack.length + 1).join(' ');
-    args = [].slice.call(args).map(inspect);
-    //console.log(indent + nodes[id].id.name + '(' + args.join(', ') + ')');
-
-    var str = indent + nodes[id].id.name + '(' + args.join(', ') + ')';
-
-    // _obj.push({
-    //   'func': str
-    // });
-    //_obj.push(str);
-
-    var data = new Data();
-    data.param = nodes[id].id.name;
-    data.id = id;
-    data.level = level;
-    data.param = str;
-    _obj.push(data);
-
-
-
-    stack.push(id);
-  }
-
-  return _obj;
-
+  node.argument.update(
+    '_exit(' + node.argument.source() + ')'
+  );
 }

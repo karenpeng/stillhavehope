@@ -1,0 +1,40 @@
+html,body{
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  background-color: #222;
+}
+
+.editor{
+  position: absolute;
+  width: 400px;
+}
+
+#editor1{
+  position: absolute;
+  height: 60%;
+}
+
+#editor2{
+  position: absolute;
+  top: 60%;
+  height: 20%;
+}
+
+#editor3{
+  position: absolute;
+  top: 80%;
+  height: 20%;
+}
+
+#run{
+  position: absolute;
+  bottom: 20%;
+  z-index: 10;
+}
+
+canvas{
+  position: absolute;
+  left: 400px;
+}
