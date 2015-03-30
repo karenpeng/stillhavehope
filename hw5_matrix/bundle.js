@@ -195,61 +195,70 @@ function draw(txt) {
 
 //this should be in a setInterval!!!!
 function makeDrawInstructions(instructions) {
-  var curLevel = null;
+  var curLevel = 0;
   //gl.scale(2, 2, 2);
   //
   function lol(i) {
     var curItem = instructions[i];
 
-    if (curItem.hasOwnProperty('call')) {
+    if (curItem.level > curLevel) {
 
-      if (curLevel !== curItem.level) {
-
-        //drawInstructions.push('[');
-        drawInstructions.push(['down', curItem]);
-        // drawInstructions.push('down');
-        // drawInstructions.push(curItem);
-
-        curLevel = curItem.level;
-
-      } else {
-
-        var secondLast = drawInstructions[drawInstructions.length - 2];
-
-        if (secondLast[secondLast.length - 1].hasOwnProperty('call')) {
-          /*
-                  f(2)
-                   /
-                   1
-
-                     f(0)
-          */
-
-          drawInstructions[drawInstructions.length - 2] = ['left'].concat(drawInstructions[drawInstructions.length - 2]);
-          drawInstructions.push(['right', curItem]);
-          curLevel = curItem.level;
-
-        } else {
-
-          /*
-                  f(2)
-                  /  \
-                  1  0
-
-                      f(1)
-          */
-
-          drawInstructions[drawInstructions.length - 3] = ['left'].concat(drawInstructions[drawInstructions.length - 3]);
-          drawInstructions.push(['up', 'right', curItem]);
-          curLevel = curItem.level;
-
-        }
-
-      }
+      drawInstructions.push(['down', curItem])
+      curLevel = curItem.level;
 
     } else {
-      var lastOne = drawInstructions[drawInstructions.length - 1];
-      lastOne[lastOne.length - 1] = curItem;
+
+      if (curItem.hasOwnProperty('call')) {
+
+        //everything since the last level
+        var lastIndex;
+        for (var j = drawInstructions.length - 1; j > 0; j--) {
+          var item = drawInstructions[j];
+          if (item[item.length - 1].level < curItem.level) {
+            lastIndex = j;
+            break;
+          }
+        }
+
+        var levelGap = curLevel - curItem.level;
+        var lastOne = drawInstructions[lastIndex + 1];
+        lastOne = ['left'].concat(lastOne);
+
+        var pops = [];
+        for (var j = 0; j < levelGap - 1; j++) {
+          pops.push('up');
+        }
+        drawInstructions.push(pops.concat(['right', curItem]));
+        curLevel = curItem.level;
+
+      } else if (curLevel - curItem.level === 1) {
+
+        var lastOne = drawInstructions[drawInstructions.length - 1];
+        lastOne[lastOne.length - 1] = curItem;
+
+      } else if (curLevel - curItem.level > 1) {
+
+        var levelGap = curLevel - curItem.level;
+        //everything since the last level
+        var lastIndex;
+        for (var j = drawInstructions.length - 1; j > 0; j--) {
+          var item = drawInstructions[j];
+          if (curItem.level - item[item.length - 1].level === levelGap) {
+            lastIndex = j;
+            break;
+          }
+        }
+
+        var lastOne = drawInstructions[lastIndex + 1];
+        lastOne = ['left'].concat(lastOne);
+        lastOne[lastOne.length - 1] = curItem;
+        var pops = [];
+        for (var j = 0; j < levelGap - 1; j++) {
+          pops.push('up');
+        }
+        drawInstructions.push(pops.concat(['right', curItem]));
+        curLevel = curItem.level;
+      }
     }
 
   }
