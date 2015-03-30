@@ -200,73 +200,58 @@ function makeDrawInstructions(instructions) {
   //
   function lol(i) {
     var curItem = instructions[i];
-    //var nxtItem = instructions[i + 1];
-    //console.log(curItem)
-    //var curNode = new Tree();
+
     if (curItem.hasOwnProperty('call')) {
 
       if (curLevel !== curItem.level) {
-        //gl.pushMatrix();
-        drawInstructions.push('[');
-        drawInstructions.push('down');
-        drawInstructions.push(curItem);
 
-        //curNode.setLeft(new Tree(curItem.call))
-        // var tree = new Tree()
-        // tree.setLeft();
+        //drawInstructions.push('[');
+        drawInstructions.push(['down', curItem]);
+        // drawInstructions.push('down');
+        // drawInstructions.push(curItem);
+
         curLevel = curItem.level;
-        //curNode = curNode.left;
 
       } else {
 
-        var lastOne = drawInstructions[drawInstructions.length - 1];
+        var secondLast = drawInstructions[drawInstructions.length - 2];
 
-        if (lastOne.hasOwnProperty('call')) {
-          drawInstructions.pop();
-          drawInstructions.push('left');
-          drawInstructions.push(lastOne);
-          drawInstructions.push('right');
-          drawInstructions.push(curItem);
+        if (secondLast[secondLast.length - 1].hasOwnProperty('call')) {
+          /*
+                  f(2)
+                   /
+                   1
+
+                     f(0)
+          */
+
+          drawInstructions[drawInstructions.length - 2] = ['left'].concat(drawInstructions[drawInstructions.length - 2]);
+          drawInstructions.push(['right', curItem]);
+          curLevel = curItem.level;
+
         } else {
-          drawInstructions.push('up');
-          var index;
-          for (var i = drawInstructions.length - 1; i > 0; i--) {
-            if (drawInstructions[i].hasOwnProperty('call')) {
-              //drawInstructions[i] = curItem;
-              index = drawInstructions[i];
 
-              break;
-            }
-          }
+          /*
+                  f(2)
+                  /  \
+                  1  0
 
-          drawInstructions.splice(index - 1, 0, 'left');
-          // drawInstructions.splice(index + 1, 0, 'right');
-          // drawInstructions.splice(index + 3, 0, curItem);
+                      f(1)
+          */
+
+          drawInstructions[drawInstructions.length - 3] = ['left'].concat(drawInstructions[drawInstructions.length - 3]);
+          drawInstructions.push(['up', 'right', curItem]);
+          curLevel = curItem.level;
+
         }
 
       }
 
     } else {
-      //draw(curItem.value);
-      //draw(curItem.value);
       var lastOne = drawInstructions[drawInstructions.length - 1];
-      //console.log(lastOne)
-      if (lastOne.hasOwnProperty('call')) {
-        drawInstructions.pop();
-        drawInstructions.push(curItem);
-      } else {
-        for (var i = drawInstructions.length - 1; i > 0; i--) {
-          if (drawInstructions[i].hasOwnProperty('call')) {
-            drawInstructions[i] = curItem;
-            break;
-          }
-        }
-      }
+      lastOne[lastOne.length - 1] = curItem;
     }
 
-    drawInstructions.forEach(function (item) {
-      console.log(item);
-    })
   }
 
   for (var i = 0; i < instructions.length; i++) {
@@ -291,29 +276,54 @@ makeDrawInstructions(instructions);
 //
 function drawAcorddingInstruction(todo) {
   for (var i = 0; i < todo.length; i++) {
-    if (typeof todo[i] === 'string') {
-      switch (todo[i]) {
-      case '[':
-        break;
-      case ']':
-        break;
-      case 'left':
-        gl.translate(-0.2, 0, 0);
-        break;
-      case 'down':
-        gl.translate(0, -0.2, 0);
-        break;
-      case 'right':
-        gl.translate(0.2, 0, 0);
-        break;
-      }
-    } else if (typeof todo[i] === 'object') {
-      if (todo[i].hasOwnProperty('call')) {
-        draw(todo[i].call);
-      }
-      if (todo[i].hasOwnProperty('value')) {
-        //console.log(todo[i])
-        draw(todo[i]['value']);
+    // if (typeof todo[i] === 'string') {
+    //   switch (todo[i]) {
+    //   case '[':
+    //     break;
+    //   case ']':
+    //     break;
+    //   case 'left':
+    //     gl.translate(-0.2, 0, 0);
+    //     break;
+    //   case 'down':
+    //     gl.translate(0, -0.2, 0);
+    //     break;
+    //   case 'right':
+    //     gl.translate(0.2, 0, 0);
+    //     break;
+    //   }
+    // } else if (typeof todo[i] === 'object') {
+    //   if (todo[i].hasOwnProperty('call')) {
+    //     draw(todo[i].call);
+    //   }
+    //   if (todo[i].hasOwnProperty('value')) {
+    //     //console.log(todo[i])
+    //     draw(todo[i]['value']);
+    //   }
+    // }
+    for (var j = 0; j < todo[i].length; j++) {
+      var item = todo[i][j];
+      if (typeof item === 'string') {
+        switch (item) {
+        case 'left':
+          gl.translate(-0.2, 0, 0);
+          break;
+        case 'down':
+          gl.translate(0, -0.2, 0);
+          break;
+        case 'right':
+          gl.translate(0.2, 0, 0);
+          break;
+        case 'up':
+          gl.translate(0, 0.2, 0);
+          break;
+        }
+      } else if (typeof item === 'object') {
+        if (item.hasOwnProperty('call')) {
+          draw(item.call);
+        } else if (item.hasOwnProperty('value')) {
+          draw(item.value);
+        }
       }
     }
   }
@@ -533,21 +543,26 @@ module.exports = [{
   call: 'fibonacci(1)',
   level: 3
 }, {
-  value: 1
+  value: 1,
+  level: 2
 }, {
   call: 'fibonacci(0)',
   level: 3
 }, {
-  value: 0
+  value: 0,
+  level: 2
 }, {
-  value: 1
+  value: 1,
+  level: 1
 }, {
   call: 'fibonacci(1)',
   level: 2
 }, {
-  value: 1
+  value: 1,
+  level: 1
 }, {
-  value: 2
+  value: 2,
+  level: 0
 }]
 },{}],"/Users/karen/Documents/my_project/startOver/hw5_matrix/tree.js":[function(require,module,exports){
 function BinaryTree(value, position, left, right) {

@@ -8,19 +8,24 @@ module.exports = [{
   call: 'fibonacci(1)',
   level: 3
 }, {
-  value: 1
+  value: 1,
+  level: 2
 }, {
   call: 'fibonacci(0)',
   level: 3
 }, {
-  value: 0
+  value: 0,
+  level: 2
 }, {
-  value: 1
+  value: 1,
+  level: 1
 }, {
   call: 'fibonacci(1)',
   level: 2
 }, {
-  value: 1
+  value: 1,
+  level: 1
 }, {
-  value: 2
+  value: 2,
+  level: 0
 }]
