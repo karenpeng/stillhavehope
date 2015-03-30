@@ -1,5 +1,5 @@
 function BinaryTree(value, position, left, right) {
-  this.value = value;
+  this.value = value || null;
   this.left = left || null;
   this.right = right || null;
   this.length = this.value.length;

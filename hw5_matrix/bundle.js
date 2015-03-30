@@ -577,7 +577,7 @@ module.exports = [{
 }]
 },{}],"/Users/karen/Documents/my_project/startOver/hw5_matrix/tree.js":[function(require,module,exports){
 function BinaryTree(value, position, left, right) {
-  this.value = value;
+  this.value = value || null;
   this.left = left || null;
   this.right = right || null;
   this.length = this.value.length;
