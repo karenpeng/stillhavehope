@@ -113,12 +113,14 @@ function makeDrawInstructions(instructions) {
         }
 
         var levelGap = curLevel - curItem.level;
+        //console.log(levelGap);
         var lastOne = drawInstructions[lastIndex + 1];
         lastOne = ['left'].concat(lastOne);
 
         var pops = [];
-        for (var j = 0; j < levelGap - 1; j++) {
+        for (var j = 0; j < levelGap; j++) {
           pops.push('up');
+          //console.log(curItem);
         }
         drawInstructions.push(pops.concat(['right', curItem]));
         curLevel = curItem.level;
@@ -126,30 +128,30 @@ function makeDrawInstructions(instructions) {
       } else if (curLevel - curItem.level === 1) {
 
         var lastOne = drawInstructions[drawInstructions.length - 1];
+        var level = lastOne[lastOne.length - 1].level;
         lastOne[lastOne.length - 1] = curItem;
+        lastOne[lastOne.length - 1].level = level;
 
       } else if (curLevel - curItem.level > 1) {
 
         var levelGap = curLevel - curItem.level;
+        console.log(levelGap);
         //everything since the last level
         var lastIndex;
         for (var j = drawInstructions.length - 1; j > 0; j--) {
           var item = drawInstructions[j];
-          if (curItem.level - item[item.length - 1].level === levelGap) {
+          console.log(item[item.length - 1].level, curItem.level)
+          if (item[item.length - 1].level - curItem.level === levelGap - 1) {
+            //console.log(item[item.length - 1])
             lastIndex = j;
             break;
           }
         }
 
-        var lastOne = drawInstructions[lastIndex + 1];
-        lastOne = ['left'].concat(lastOne);
+        var lastOne = drawInstructions[lastIndex];
+        var level = lastOne[lastOne.length - 1].level;
         lastOne[lastOne.length - 1] = curItem;
-        var pops = [];
-        for (var j = 0; j < levelGap - 1; j++) {
-          pops.push('up');
-        }
-        drawInstructions.push(pops.concat(['right', curItem]));
-        curLevel = curItem.level;
+        lastOne[lastOne.length - 1].level = level;
       }
     }
 
